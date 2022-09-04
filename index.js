@@ -1,15 +1,9 @@
 let capital = parseInt(prompt('Ingresa el capital a pedir (máximo 5.000 USD)'))
 let numeroCuotas = parseInt(prompt('Ingresa la cantidad de cuotas a pagar (entre 1 a 12 cuotas)'))
+let ingresos = parseInt(prompt('Ingresa tus ingresos netos mensuales en USD'))
 
 let maximoCapital = 5000
 let maximoCuotas = 12
-
-if(numeroCuotas<=6){
-   alert('El interés a pagar es del 2% sobre la cuota mensual.')
-} else {
-    alert('El interés a pagar es del 5% sobre la cuota mensual.')
-}
-
 
 function montoCuota(prestamo){
     let interes = 0
@@ -18,17 +12,44 @@ function montoCuota(prestamo){
     } else {
         interes = 5
     }
-    let valorCuota = (capital/numeroCuotas)*(1+(interes/100))
-    prestamo = valorCuota
-    return prestamo
+    let valorCuota = (prestamo/numeroCuotas)*(1+(interes/100))
+    return valorCuota
 }
 
-if (capital<=maximoCapital && numeroCuotas<=6){
+let prestamoPedido = [capital, montoCuota(capital)]
+let cobrable = 0
+
+if (capital<=maximoCapital && numeroCuotas<=6 && (ingresos>capital || montoCuota(capital)<ingresos)){
     for(let i=1;i<=numeroCuotas;i++){
             console.log('Cuota ',i,': ',montoCuota(capital))
+            cobrable = 1
     }
-} else if(capital<=maximoCapital && numeroCuotas>6 && numeroCuotas<=maximoCuotas) {
+} else if(capital<=maximoCapital && numeroCuotas>6 && numeroCuotas<=maximoCuotas && (ingresos>capital || montoCuota(capital)<ingresos)) {
     for(let i=1;i<=numeroCuotas;i++){
         console.log('Cuota ',i,': ',montoCuota(capital))
+        cobrable = 1
 }
-} else alert ('Requisitos: máximo de capital 5.000 USD y máximo de cuotas 12')
+} else if(capital<=maximoCapital && numeroCuotas<=12 && montoCuota(capital)>ingresos){
+    alert ('No cumple con los requisitos crediticios para cumplir con la cuota mensual')
+} else {
+    alert ('Requisitos: máximo de capital 5.000 USD y máximo de cuotas 12')
+}
+
+
+while(cobrable===1){
+    let decision = parseInt(prompt(`Te hemos otorgado el siguiente préstamo: capital total de ${prestamoPedido[0]} y cuotas mensuales fijas de ${prestamoPedido[1]}. Deseas obtener otro préstamo? 1.Si 2.No`))   
+    if (decision===1 && ingresos>capital){      
+        let montoRestante = (maximoCapital - capital)
+        alert(`Te otorgaremos un último préstamo de ${montoRestante} y con una cuota mensual de ${montoCuota(montoRestante)}`)
+        prestamoPedido.push(montoRestante, montoCuota(montoRestante))
+        alert(`Tus préstamos aprobados son los siguientes: Préstamo 1 (Capital: ${prestamoPedido[0]} y cuota: ${prestamoPedido[1]}) y Préstamo 2 (Capital: ${prestamoPedido[2]} y cuota: ${prestamoPedido[3]})`)
+    } else if (decision===1 && ingresos>montoCuota(capital)){      
+        let montoRestante2 = ((ingresos - montoCuota(capital))*0.5)
+        alert(`Te otorgaremos un último préstamo de ${montoRestante2} y con una cuota mensual de ${montoCuota(montoRestante2)}`)
+        prestamoPedido.push(montoRestante2, montoCuota(montoRestante2))
+        alert(`Tus préstamos aprobados son los siguientes: Préstamo 1 (Capital: ${prestamoPedido[0]} y cuota: ${prestamoPedido[1]}) y Préstamo 2 (Capital: ${prestamoPedido[2]} y cuota: ${prestamoPedido[3]})`)
+    } else if(decision!==1){       
+        alert('Muchas gracias por pedir su préstamo con nosotros!')
+     }
+     break
+}
